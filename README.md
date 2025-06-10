@@ -2,6 +2,8 @@
 
 This project analyzes fundus (eye) images using OpenAI's GPT-4 Vision model and saves the results to CSV and Excel files.
 
+---
+
 ## How to Use
 
 1. **Add your images**  
@@ -13,25 +15,40 @@ This project analyzes fundus (eye) images using OpenAI's GPT-4 Vision model and 
      ```sh
      pip install openai python-dotenv pandas openpyxl
      ```
-   - Create a `.env` file with your OpenAI API key:
-    3.**Important**
-    - 
+
+3. **Important**  
+   - Create a `.env` file with your OpenAI API key and save your API key there (for this we installed python-dotenv):
      ```
      OPENAI_API_KEY=your_openai_api_key_here
      ```
+   - If you don't want to install python-dotenv, you can directly use your API key in the main script like:
+     ```python
+     client = OpenAI(api_key="YOUR_OPENAI_API_KEY")
+     ```
+     and you can remove these lines:
+     ```python
+     from dotenv import load_dotenv
+     load_dotenv() 
+     ```
 
-3. **Run the analysis**  
+4. **Run the analysis**  
    - As a script:
      ```sh
      python main.py
      ```
    - Or open and run `main_nb.ipynb` in Jupyter.
 
-4. **View your results**  
+5. **View your results**  
    - Results are saved in `results.csv` and `results.xlsx` with one row per image.
-
 
 ---
 
-**Questions?**  
-Contact [Diwash Patel](https://github.com/DiwashPatel).
+**Questions? Pleae Contact**  
+-[Diwash Patel](diwashpatel.com)
+
+dpatel10@my.fisk.edu
+
+diwashpatel1123@gmail.com
+
+(615)-482-1894
+```
