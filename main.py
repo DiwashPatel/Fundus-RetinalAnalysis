@@ -2,6 +2,7 @@ import os
 import base64
 import json
 import time
+from datetime import datetime
 import pandas as pd
 from openai import OpenAI
 from openai.types.chat import ChatCompletionUserMessageParam
@@ -90,7 +91,9 @@ def analyze_image(image_name):
     except Exception as e:
         print(f"Error processing {image_name}: {str(e)}")
         return None
-
+    
+timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+output_filename = f'results_{timestamp}'
 
 # Process each image
 for img_name in all_images:
@@ -102,7 +105,7 @@ for img_name in all_images:
             print(f"Processed: {img_name}")
 
             #Saves after reach result (In case the script stops unexpectedly)
-            pd.DataFrame(results).to_csv("results.csv", index=False)
+            pd.DataFrame(results).to_csv(f"{output_filename}.csv", index=False)
         time.sleep(1)  # Avoid rate limits
 
 # Save to Excel
@@ -113,5 +116,5 @@ if results:
     if "image_name" in cols:
         cols.insert(0, cols.pop(cols.index("image_name")))
         df = df[cols]
-    df.to_excel("results.xlsx", index=False)
-    print("Saved results to results.xlsx")
+    df.to_excel(f"{output_filename}.xlsx", index=False)
+    print("Saved results to {output_filename}")
