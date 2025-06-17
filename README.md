@@ -34,12 +34,22 @@ This project analyzes fundus (eye) images using OpenAI's GPT-4 Vision model and 
 4. **Run the analysis**  
    - As a script:
      ```sh
-     python main.py
+     python3 main.py
      ```
-   - Or open and run `main_nb.ipynb` in Jupyter.
+     and then you will see a file called results_<Current TIME>
+     Update the file name in the very last line of the code and run 
+     ```
+     python3 merge_files.py
+     ```
+   - Or open and run `main_nb.ipynb` in Jupyter.and Update the very last line of the code (Just change the file name with the newly created file).
+     ```
+      #Just change the file name and it's done
+     
+      merge_two_files("results_1.xlsx")
+     ```
 
 5. **View your results**  
-   - Results are saved in `results.csv` and `results.xlsx` with one row per image.
+   - Results are saved in `results<Current_Time_stamp>.csv` and `results<Current_time_stamp>.xlsx` with one row per image.
 
 ---
 
