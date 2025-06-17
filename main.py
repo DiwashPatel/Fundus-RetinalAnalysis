@@ -57,7 +57,7 @@ def analyze_image(image_name):
     """Analyze single image and return result"""
     try:
         response = client.chat.completions.create(
-            model="gpt-4.1-mini",
+            model="gpt-4.1-mini", #We can change it deepnding upon which models are available "gpt-4.1-mini"
             messages=[{
                 "role": "user",
                 "content": [
@@ -115,4 +115,3 @@ if results:
         df = df[cols]
     df.to_excel("results.xlsx", index=False)
     print("Saved results to results.xlsx")
-
