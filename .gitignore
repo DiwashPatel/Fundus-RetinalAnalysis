@@ -25,3 +25,10 @@ Thumbs.db
 
 # VS Code settings
 .vscode/
+
+#Datasets
+datasets/
+
+*.csv
+*.xlsx
+results/

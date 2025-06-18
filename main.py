@@ -36,18 +36,6 @@ RULES:
 3. Empty arrays [] when no locations exist
 """
 
-
-#Processed keeps tracks of images that are successfully analysed
-processed = set() 
-results = []       # Stores all results
-
-#Getting all the images
-IMAGE_FOLDER = "images"
-all_images = {
-    f for f in os.listdir(IMAGE_FOLDER) 
-    if f.lower().endswith(('.jpg', '.jpeg', '.png'))
-}
-
 def encode_image(image_name):
     """Convert image to base64 string"""
     img_path = os.path.join(IMAGE_FOLDER, image_name)
@@ -55,10 +43,12 @@ def encode_image(image_name):
         return base64.b64encode(f.read()).decode("utf-8")
 
 def analyze_image(image_name):
-    """Analyze single image and return result"""
+    """Analyze single image and return result dict with metadata"""
     try:
+        start_time = time.time()
+
         response = client.chat.completions.create(
-            model="gpt-4.1-mini", #We can change it deepnding upon which models are available "gpt-4.1-mini"
+            model="gpt-4.1-mini",  # change if needed
             messages=[{
                 "role": "user",
                 "content": [
@@ -73,48 +63,98 @@ def analyze_image(image_name):
             }],
             response_format={"type": "json_object"}
         )
-        
+
+        elapsed_time = time.time() - start_time
+
         if not response.choices or not hasattr(response.choices[0], "message"):
             print(f"No choices/message returned for {image_name}")
             return None
-        
-        generated_content = response.choices[0].message.content
 
+        generated_content = response.choices[0].message.content
         if not generated_content:
             print(f"No content returned for {image_name}")
             return None
-        
+
+        # Parse result JSON
         result = json.loads(generated_content)
+
+        # Add metadata
         result["image_name"] = image_name
+        result["processed_at"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        result["elapsed_time_sec"] = round(elapsed_time, 2)
+
+        # Token usage
+        usage = response.usage if hasattr(response, "usage") else None
+        result["prompt_tokens"] = usage.prompt_tokens if usage else "unknown"
+        result["completion_tokens"] = usage.completion_tokens if usage else "unknown"
+        result["total_tokens"] = usage.total_tokens if usage else "unknown"
+
         return result
-    
+
     except Exception as e:
         print(f"Error processing {image_name}: {str(e)}")
         return None
-    
+
+
+# === Setup paths and folders ===
+IMAGE_FOLDER = "images"
+RESULTS_FOLDER = "results"
+os.makedirs(RESULTS_FOLDER, exist_ok=True)
+
 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-output_filename = f'results_{timestamp}'
+output_filename = os.path.join(RESULTS_FOLDER, f'results_{timestamp}')
+processed_file_path = os.path.join(RESULTS_FOLDER, "processed_images.txt")
 
-# Process each image
-for img_name in all_images:
-    if img_name not in processed:
-        result = analyze_image(img_name)
-        if result:
-            results.append(result)
-            processed.add(img_name)
-            print(f"Processed: {img_name}")
+# === Load processed image names from file ===
+if os.path.exists(processed_file_path):
+    with open(processed_file_path, "r") as f:
+        processed = set(line.strip() for line in f if line.strip())
+else:
+    processed = set()
 
-            #Saves after reach result (In case the script stops unexpectedly)
-            pd.DataFrame(results).to_csv(f"{output_filename}.csv", index=False)
-        time.sleep(1)  # Avoid rate limits
+# === Load all image files ===
+all_images = {
+    f for f in os.listdir(IMAGE_FOLDER)
+    if f.lower().endswith(('.jpg', '.jpeg', '.png'))
+}
 
-# Save to Excel
-if results:
-    df = pd.DataFrame(results)
-    # Move 'image_name' to the first column
-    cols = df.columns.tolist()
-    if "image_name" in cols:
-        cols.insert(0, cols.pop(cols.index("image_name")))
-        df = df[cols]
-    df.to_excel(f"{output_filename}.xlsx", index=False)
-    print("Saved results to {output_filename}")
+# === Store results and newly processed files ===
+results = []
+newly_processed = set()
+
+# === Main Loop with Safe Writing ===
+try:
+    for img_name in all_images:
+        if img_name not in processed:
+            print(f"Analyzing: {img_name}")
+            result = analyze_image(img_name)
+            if result:
+                results.append(result)
+                newly_processed.add(img_name)
+                print(f"Processed: {img_name}")
+            time.sleep(1)  # Prevent rate limit
+        else:
+            print(f"Skipping already processed: {img_name}")
+
+finally:
+    # Save processed image names
+    if newly_processed:
+        with open(processed_file_path, "a") as f:
+            for name in newly_processed:
+                f.write(name + "\n")
+        print(f"Updated processed_images.txt with {len(newly_processed)} new entries.")
+
+    # Save final results to CSV and Excel
+    if results:
+        df = pd.DataFrame(results)
+        cols = df.columns.tolist()
+        if "image_name" in cols:
+            cols.insert(0, cols.pop(cols.index("image_name")))
+            df = df[cols]
+
+        df.to_csv(f"{output_filename}.csv", index=False)
+        df.to_excel(f"{output_filename}.xlsx", index=False)
+        print(f"Results saved to: {output_filename}.csv and .xlsx")
+    else:
+        print("No new results to save.")
+        
