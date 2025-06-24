@@ -32,3 +32,10 @@ datasets/
 *.csv
 *.xlsx
 results/
+
+#Images...
+*.png
+
+#Evaluations folder
+evaluations/
+
