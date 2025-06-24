@@ -10,10 +10,18 @@ from sklearn.metrics import (
     confusion_matrix, ConfusionMatrixDisplay
 )
 
+os.makedirs("evaluations", exist_ok= True)
+from datetime import datetime
+
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+eval_dir = f"evaluations/{timestamp}"
+os.makedirs(eval_dir, exist_ok=True)
+
+
 # === Step 1: Load Merged Data ===
 #Change the file_name with the latest and Complete merged file...
 
-file_name = "merged_on_ranid_tracking_20250624_154644.xlsx"
+file_name = "merged_on_ranid_tracking_20250624_155649.xlsx"
 file_path = Path(f"results/{file_name}")
 
 if file_path.suffix == ".xlsx":
@@ -75,10 +83,16 @@ print("\n=== Evaluation Metrics ===")
 for k, v in metrics.items():
     print(f"{k}: {v:.4f}")
 
+
+with open(f"{eval_dir}/metrics.txt", "w") as f:
+    f.write("=== Evaluation Metrics ===\n")
+    for k, v in metrics.items():
+        f.write(f"{k}: {v:.4f}\n")
+
 # === Step 5: Confusion Matrix ===
 ConfusionMatrixDisplay.from_predictions(y_true, y_pred, display_labels=["No Glaucoma", "Glaucoma"])
 plt.title("Confusion Matrix")
-plt.savefig(f"Confusion matrix")
+plt.savefig(f"{eval_dir}/Confusion matrix")
 plt.close()
 # plt.show()
 
@@ -95,12 +109,7 @@ numeric_pairs = [
     ('pericrescent', 'pericrescent_pred'),
 ]
 
-os.makedirs("evaluations", exist_ok= True)
-from datetime import datetime
 
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-eval_dir = f"evaluations/{timestamp}"
-os.makedirs(eval_dir, exist_ok=True)
 
 for actual, predicted in numeric_pairs:
     if actual in merged.columns and predicted in merged.columns:
