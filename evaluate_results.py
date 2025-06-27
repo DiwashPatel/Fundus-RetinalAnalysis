@@ -136,3 +136,39 @@ for actual, predicted in numeric_pairs:
             plt.close()
         else:
             print(f"Skipping {actual} vs {predicted}: no valid numeric data")
+
+    
+# Confusion Matrices for Other Categorical Variables ===
+
+# Define mapping for categorical variables
+cat_maps = {
+    # Add mappings for each variable as needed
+    'dischem': {'yes': 1, 'with': 1, '1': 1, 1: 1, 'no': 0, 'without': 0, '0': 0, 0: 0, 'unknown': np.nan, '': np.nan, np.nan: np.nan},
+    'rimnotch': {'yes': 1, 'with': 1, '1': 1, 1: 1, 'no': 0, 'without': 0, '0': 0, 0: 0, 'unknown': np.nan, '': np.nan, np.nan: np.nan},
+    'rimthin': {'yes': 1, 'with': 1, '1': 1, 1: 1, 'no': 0, 'without': 0, '0': 0, 0: 0, 'unknown': np.nan, '': np.nan, np.nan: np.nan},
+    'pericrescent': {'yes': 1, 'with': 1, '1': 1, 1: 1, 'no': 0, 'without': 0, '0': 0, 0: 0, 'unknown': np.nan, '': np.nan, np.nan: np.nan},
+}
+
+for col_base in cat_maps:
+    actual_col = col_base
+    pred_col = f"{col_base}_pred"
+    if actual_col in merged.columns and pred_col in merged.columns:
+        # Lowercase and string conversion for mapping
+        actual = merged[actual_col].astype(str).str.lower().str.strip()
+        pred = merged[pred_col].astype(str).str.lower().str.strip()
+        # Map values
+        actual_mapped = actual.map(cat_maps[col_base])
+        pred_mapped = pred.map(cat_maps[col_base])
+        # Drop rows with NaN in either
+        valid = ~(actual_mapped.isna() | pred_mapped.isna())
+        if valid.sum() < 2 or actual_mapped[valid].nunique() < 2 or pred_mapped[valid].nunique() < 2:
+            print(f"Skipping confusion matrix for {col_base}: not enough valid data or only one class present.")
+            continue
+        # Compute confusion matrix
+        cm = confusion_matrix(actual_mapped[valid], pred_mapped[valid], labels=[0, 1])
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["No", "Yes"])
+        disp.plot(cmap="Blues")
+        plt.title(f"Confusion Matrix: {col_base}")
+        plt.savefig(f"{eval_dir}/Confusion_matrix_{col_base}.png")
+        plt.close()
+        print(f"Saved confusion matrix for {col_base} ({valid.sum()} valid samples)")
