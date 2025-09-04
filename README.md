@@ -16,7 +16,7 @@ Fundus is an automated tool for analyzing retinal (fundus) images to extract gla
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/DiwashPatel/Fundus.git
+   git clone https://github.com/DiwashPatel/Fundus-RetinalAnalysis.git
    cd Fundus
    ```
 2. Install dependencies:
