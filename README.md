@@ -27,10 +27,7 @@ Fundus is an automated tool for analyzing retinal (fundus) images to extract gla
 ### Usage
 
 1. Place your retinal images in the designated input folder.
-2. Run the analysis script:
-   ```bash
-   python analyze.py --input_folder ./images
-   ```
+2. Run the req. scripts (main.py)
 
 ## Important Notes ⚠️
 
