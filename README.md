@@ -1,4 +1,4 @@
-# Fundus: Automated Analysis of Retinal Images 🩺👁️
+# Fundus: Automated Analysis of Retinal Images           👁️🩺👁️
 
 ## Project Description
 
@@ -55,5 +55,6 @@ Fundus is an automated tool for analyzing retinal (fundus) images to extract gla
 
 - Code writing was assisted by ChatGPT (OpenAI).
 
---
-If you have suggestions or find issues, feel free to open an issue or submit a pull request.
+## Suggestions??
+
+- If you have suggestions or find issues, feel free to open an issue or submit a pull request.
